@@ -12,17 +12,18 @@ using namespace hsql;
 string executeCreate(const CreateStatement *stmt){
 	string ret("CREATE TABLE ");
 	if(stmt->type != CreateStatement::kTable)
-		return ret+"...";
+		return ret + "...";
 	if(stmt->ifNotExists)
-		ret+="If NOT EXISTS ";
-	ret+= string(stmt->tableName)+"(..)";
+		ret += "If NOT EXISTS ";
+	ret += string(stmt->tableName) + "(..)";
 	return ret;
 }
+
 
 string execute(const SQLStatement *stmt){
 	switch(stmt->type()){
 		case kStmtSelect:
-		 	return "SELECT ...":
+          return "SELECT ...";
 		case kStmtCreate:
 			return executeCreate((const CreateStatement *)stmt);
 		case kStmtInsert:
@@ -34,12 +35,12 @@ string execute(const SQLStatement *stmt){
 
 
 int main(int argc, char *argv[]) {
-	if(arge !=2){
-	cerr<<"Usage: ./sql5300 dbenvapth" <<endl ;
+	if(argc !=2){
+	cerr << "Usage: ./sql5300 dbenvapth" << endl ;
 	return EXIT_FAILURE;
 }
  	char *envHome=argv[1]; 	
-	cout<<"(sql5300:running with database environment at" <<envHome<<")"<<endl;
+	cout << "(sql5300:running with database environment at" << envHome << ")" << endl;
 	
 	DbEnv env(0U);
 	env.set_message_stream(&std::cout);
@@ -47,25 +48,25 @@ int main(int argc, char *argv[]) {
 	try{
 	env.open(envHome,DB_CREATE  | DB_INIT_MPOOL, 0);
 	}catch(DbException& exc){
-		cerr<<"(sql5300:"<<exc.what()<<")"<<endl;
+		cerr << "(sql5300:" << exc.what() << ")" << endl;
 		exit(1);
 	}
 
 	while(true){
-		cout<<" SQL >" ;
+		cout << " SQL > " ;
 		string query;
-		getline(cin,guery);
-		if(query.length()==0)
+		getline(cin, query);
+		if(query.length() == 0)
 			continue;
-                if(query=="quit")
+                if(query == "quit")
 			break;
 	
-	//USE sql parser to get on ASI
-	SQLParserResult *result=SQLParser::parseSQLString(query);
+	//USE sql parser to get an AST
+	SQLParserResult * result = SQLParser::parseSQLString(query);
 	if(!result->isValid()){
-		cout<<"invalid SQL:"<<query<<endl;
+		cout << "invalid SQL:" << query << endl;
 		delete result;
-		//continue;
+		continue;
 	}else{
 	 	cout<<"valid"<<endl;
   	}
@@ -73,7 +74,7 @@ int main(int argc, char *argv[]) {
 	    cout<<execute(result->getStatement(i))<<endl;
 	}
 	
-	//cout<<" your query was: "<< query <<endl;
+    cout << query << endl;
 	delete result;
      }
 	return EXIT_SUCCESS;
