@@ -3,7 +3,7 @@ DB Relation Manager project for CPSC5300/4300 at Seattle U, Spring 2020
 
 # Milestone 1: Skeletion
 File relevant to this milestone is sql5300.cpp. Even though this file is also used in the second milestone, the parts that were not taken from Kevin Lundeen's code is our code for the first milestone.
-Aim of this milestone is to create the skeleton for the database, and that skeleton just allows the user to type some simple SQL commands, and it will parse the SQL commands in an AST and spit back what the SQL is to the user. 
+Aim of this milestone is to create the skeleton for the database, and that skeleton just allows the user to type some simple SQL commands including create table, if not exists, insert into, select, from, where, join, left join, right join, not, values, and, or, as on, double, int, and text, and it will parse the SQL commands in an AST and spit back what the SQL is to the user. 
 Typing quit ends the program.
 
 
