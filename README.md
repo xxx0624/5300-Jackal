@@ -1,13 +1,13 @@
 # 5300-Jackal
 DB Relation Manager project for CPSC5300/4300 at Seattle U, Spring 2020
 
-# Milestone 1
+# Milestone 1: Skeletion
 File relevant to this milestone is sql5300.cpp. Even though this file is also used in the second milestone, the parts that were not taken from Kevin Lundeen's code is our code for the first milestone.
 Aim of this milestone is to create the skeleton for the database, and that skeleton just allows the user to type some simple SQL commands, and it will parse the SQL commands in an AST and spit back what the SQL is to the user. 
 Typing quit ends the program.
 
 
-# Milestone 2
+# Milestone 2: Rudimentary Storage Engine
 Files relevant to this milestone are sql5300.cpp, heap_storage.h, heap_storage.cpp, Makefile, and storage_engine.h/
 
 storage_engine.h - This file contains the base classes and data types for the blocks, files, and relations that are used throughout the other programs.
