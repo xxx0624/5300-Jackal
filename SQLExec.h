@@ -83,7 +83,7 @@ protected:
 
     static QueryResult *show_tables();
 
-    static QueryResult *show_columns(const hsql::ShowStatement *statement);
+    static QueryResult *show_columns();
 
     /**
      * Pull out column name and attributes from AST's column definition clause

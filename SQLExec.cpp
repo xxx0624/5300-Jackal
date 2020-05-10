@@ -49,7 +49,16 @@ ostream &operator<<(ostream &out, const QueryResult &qres) {
 }
 
 QueryResult::~QueryResult() {
-    // FIXME
+  if (column_names != nullptr)
+    delete column_names;
+  if (column_attributes != nullptr)
+    delete column_attributes;
+  if (rows != nullptr){
+    for(auto row : *rows)
+      delete row;
+    delete rows;
+    
+  }
 }
 
 
@@ -72,9 +81,23 @@ QueryResult *SQLExec::execute(const SQLStatement *statement) {
     }
 }
 
-void
-SQLExec::column_definition(const ColumnDefinition *col, Identifier &column_name, ColumnAttribute &column_attribute) {
-    throw SQLExecError("not implemented");  // FIXME
+void SQLExec::column_definition(const ColumnDefinition *col,
+                                Identifier &column_name,
+                                ColumnAttribute &column_attribute) {
+  column_name = col->name;
+
+  switch (col->type) {
+  case ColumnDefinition::INT:
+    column_attribute.set_data_type(ColumnAttribute::INT);
+    break;
+  case ColumnDefinition::TEXT:
+    column_attribute.set_data_type(ColumnAttribute::TEXT);
+    break;
+  default:
+    throw SQLExecError("data not implemented");
+    
+  }
+    
 }
 
 /*
@@ -133,14 +156,15 @@ QueryResult *SQLExec::create_index(const CreateStatement* statement){
  */
 
 QueryResult *SQLExec::drop(const DropStatement *statement) {
-  switch (statement->type) {
+  /* switch (statement->type) {
   case DropStatement::kTable:
     return drop_table(statement);
   case DropStatement::kIndex:
     return drop_index(statement);
   default:
     return new QueryResult("Only DROP TABLE and DROP INDEX are implemented");
-  }
+    }*/
+  return new QueryResult("not implemented");
 }
 
 /*
@@ -149,14 +173,15 @@ QueryResult *SQLExec::drop(const DropStatement *statement) {
  */
 
 QueryResult *SQLExec::drop_table(const DropStatement *statement) {
-  Identifier table_name = statement->tableName;
+  /*Identifier table_name = statement->tableName;
   if ( table_name == Table::TABLE_NAME || table_name == Columns::TABLE_NAME){
     throw SQLExecError("Schema table cannot be droped");
   }
   DbRelation& table = SQLExec::tables->get_table(table_name);
   table.drop();
 
-  return new QueryResult("droped" + table_name);
+  return new QueryResult("droped" + table_name);*/
+  return new QueryResult("not implemented");
 }
 
 
@@ -167,9 +192,9 @@ QueryResult *SQLExec::drop_table(const DropStatement *statement) {
 QueryResult *SQLExec::show(const ShowStatement *statement) {
   switch (statement->type){
   case ShowStatement::kTables:
-    return show_tables(statement);
+    return show_tables();
   case ShowStatement::kColumns:
-    return show_columns(statement);
+    return show_columns();
   case ShowStatement::kIndex:
   default:
     throw SQLExecError("unrecognized SHOW type");
@@ -185,12 +210,13 @@ QueryResult *SQLExec::show(const ShowStatement *statement) {
 }
 
 QueryResult *SQLExec::show_tables() {
-  ColumnNames column_names;
+  /*ColumnNames column_names;
   column_names->push_back("table_names");
   ColumnAttributes column_attributes;
   column_attributes->push_back(ColumnAttribute(ColumnAttribute::TEXT));
   
-  return new QueryResult(column_names, column_attributes); 
+  return new QueryResult(column_names, column_attributes);*/
+  return new QueryResult("not implemented");
 }
 
 /*
@@ -198,8 +224,8 @@ QueryResult *SQLExec::show_tables() {
  *
 */
  
-QueryResult *SQLExec::show_columns(const ShowStatement *statement) {
-  DbRelation& cols = SQLExec::tables->get_table(Columns::TABLE_NAME);
+QueryResult *SQLExec::show_columns() {
+  /*DbRelation& cols = SQLExec::tables->get_table(Columns::TABLE_NAME);
   ColumnNames column_names;
   column_names->push_back("table_name");
   column_names->push_back("column_name");
@@ -207,6 +233,7 @@ QueryResult *SQLExec::show_columns(const ShowStatement *statement) {
   ColumnAttributes column_attributes;
   column_attributes->push_back(ColumnAttributes::TEXT);
 
-  return new QueryResult(column_names, column_attributes); 
+  return new QueryResult(column_names, column_attributes);*/
+  return new QueryResult("not implemented");
 }
 
