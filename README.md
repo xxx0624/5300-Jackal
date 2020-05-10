@@ -1,5 +1,10 @@
-# 5300-Instructor
-DB Relation Manager project for CPSC5300/4300 at Seattle U, Spring 2020; Instructor Solution
+# 5300-Jackal
+DB Relation Manager project for CPSC5300/4300 at Seattle U, Spring 2020; 
+
+# Milestone 3 Authors
+Jietao Zhan and Thomas Ficca
+
+Functions for CREATE TABLE, DROP TABLE, SHOW TABLE and SHOW COLUMNS have been added, we need to resolve some compiler issues before we can complete testing.
 
 ## Tags
 - <code>Milestone1</code> is playing around with the AST returned by the HyLine parser and general setup of the command loop.
