@@ -122,14 +122,17 @@ QueryResult *SQLExec::create(const CreateStatement *statement) {
  */
 
 QueryResult *SQLExec::create_table(const CreateStatement *statement) {
+
   Identifier table_name = statement->tableName;
   ColumnNames column_names;
+  ColumnAttribute column_attribute;
   ColumnAttributes column_attributes;
   Identifier column_name;
+  
   for (ColumnDefinition* col : *statement->columns) {
-    column_definition(col, column_names, column_attributes);
-    column_name.push_back(column_name);
-    column_attributes.push_back(column_attributes);
+    column_definition(col, column_name, column_attribute);
+    column_names.push_back(column_name);
+    column_attributes.push_back(column_attribute);
   }
   return new QueryResult("Created" + table_name);
 }
