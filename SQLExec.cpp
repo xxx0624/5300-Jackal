@@ -52,6 +52,10 @@ ostream &operator<<(ostream &out, const QueryResult &qres) {
     return out;
 }
 
+/*
+ * Destructor
+ */
+
 QueryResult::~QueryResult() {
     if (column_names != nullptr)
         delete column_names;
@@ -65,6 +69,11 @@ QueryResult::~QueryResult() {
     }
 }
 
+/*
+ * Execute SQL statement based on statement type
+ * @param SQL statement
+ * @return QueryResult
+ */
 
 QueryResult *SQLExec::execute(const SQLStatement *statement) {
     if (tables == nullptr) {
@@ -87,6 +96,13 @@ QueryResult *SQLExec::execute(const SQLStatement *statement) {
     }
 }
 
+/*
+ * Pull out column name and attributes from AST's ColDef clause
+ * @param col                AST column defintion
+ * @param column_name        returned by reference 
+ * @param column_attributes  returned by reference
+ */
+
 void SQLExec::column_definition(const ColumnDefinition* col, Identifier& column_name, ColumnAttribute& column_attribute) {
     column_name = col->name; // Hold column name
 
@@ -107,7 +123,8 @@ void SQLExec::column_definition(const ColumnDefinition* col, Identifier& column_
 
 /*
  * Create function establishing tables, indexs and such
- *
+ * @param given statement for creation of something
+ * @return QueryResult
 */
 
 QueryResult *SQLExec::create(const CreateStatement *statement) {
@@ -121,8 +138,12 @@ QueryResult *SQLExec::create(const CreateStatement *statement) {
   }
 }
 
+/*
+ * helper function, creates a table in conjunction with create
+ * @param given statement for table creation
+ * @return QueryResult
+ */
 
-// CREATE TABLE
 QueryResult *SQLExec::create_table(const CreateStatement *statement) {
     if (statement->type != CreateStatement::kTable) {
         return new QueryResult("Only handle CREATE TABLE");
@@ -189,8 +210,12 @@ QueryResult *SQLExec::create_table(const CreateStatement *statement) {
     return new QueryResult("Created " + table_name);
 }
 
+/*
+ * helper function, creates an index in conjunction with create
+ * @param given statement for index creation
+ * @return QueryResult
+ */
 
-// CREATE INDEX
 QueryResult *SQLExec::create_index(const CreateStatement* statement){
     if (statement->type != CreateStatement::kIndex) {
         return new QueryResult("Only handles CREATE INDEX");
@@ -242,7 +267,8 @@ QueryResult *SQLExec::create_index(const CreateStatement* statement){
 
 /*
  * Drop function, drops tables, indexs and such......
- *
+ * @param given statement for removal of things
+ * @return QueryResult
  */
 
 QueryResult* SQLExec::drop(const DropStatement* statement) {
@@ -257,6 +283,11 @@ QueryResult* SQLExec::drop(const DropStatement* statement) {
 }
 
 
+/*
+ * helper function, drops tables when used in conjunction with drop
+ * @param given statement for table removal
+ * @return QueryResult
+ */
 
 QueryResult *SQLExec::drop_table(const DropStatement *statement) {
     Identifier table_name = statement->name;
