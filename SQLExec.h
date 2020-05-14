@@ -67,7 +67,7 @@ public:
 protected:
     // the one place in the system that holds the _tables table + and indeices table
     static Tables* tables;
-    //static Indices* indices;
+    static Indices* indices;
 
     // recursive decent into the AST
     static QueryResult* create(const hsql::CreateStatement* statement);
@@ -80,13 +80,15 @@ protected:
 
     static QueryResult* drop_table(const hsql::DropStatement* statement);
 
-    //static QueryResult* drop_index(const hsql::DropStatement* statement);
+    static QueryResult* drop_index(const hsql::DropStatement* statement);
 
     static QueryResult* show(const hsql::ShowStatement* statement);
 
     static QueryResult* show_tables(const hsql::ShowStatement* statement);
 
     static QueryResult* show_columns(const hsql::ShowStatement* statement);
+
+    static QueryResult* show_index(const hsql::ShowStatement* statement);
 
     /**
      * Pull out column name and attributes from AST's column definition clause
