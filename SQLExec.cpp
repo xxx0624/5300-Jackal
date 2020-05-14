@@ -76,8 +76,8 @@ QueryResult::~QueryResult() {
  */
 
 QueryResult* SQLExec::execute(const SQLStatement* statement) {
-    if (tables == nullptr) {
-        tables = new Tables();
+  if (SQLExec::tables == nullptr) {
+      SQLExec::tables = new Tables();
     }
 
     try {
@@ -347,13 +347,8 @@ QueryResult* drop_index(const hsql::DropStatement* statement) {
 }
 
 
-/*
- * Show function, shows tables, columns, indexs and such.
- *
- */
-
  /*
-  * Show function,
+  * Show function, shows tables, columns, indexs and such
   * @param given statement for show table or columns
   * @return QueryResult
   */
@@ -371,7 +366,7 @@ QueryResult* SQLExec::show(const ShowStatement* statement) {
 
 
 /*
-  * Show table function,
+  * helper function, used in conjunction with Show to show table
   * @param given statement for show table
   * @return QueryResult
   */
