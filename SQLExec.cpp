@@ -7,8 +7,9 @@
  * @see "Seattle University, CPSC5300, Spring 2020"
  *
  * Additional functionality related to CREATE TABLE
- * DROP TABLE, SHOW TABLE, SHOW COLUMNS authored by
- * Jietao Zhan and Thomas Ficca 5/8/2020
+ * DROP TABLE, SHOW TABLE, SHOW COLUMNS
+ *
+ * authored by Jietao Zhan and Thomas Ficca 5/8/2020
  * CPSC5300/4300 SQ20
  *
  */
@@ -290,10 +291,10 @@ QueryResult* SQLExec::drop(const DropStatement* statement) {
     switch (statement->type) {
     case DropStatement::kTable:
         return drop_table(statement);
-        //case DropStatement::kIndex:
-        //    return drop_index(statement);
+    case DropStatement::kIndex:
+        return drop_index(statement);
     default:
-        return new QueryResult("Drop implemented");
+        return new QueryResult("Drop table and index implemented only");
     }
 }
 
@@ -336,14 +337,30 @@ QueryResult* SQLExec::drop_table(const DropStatement* statement) {
  * @param given statement for index removal
  * @return QueryResult
  */
-QueryResult* drop_index(const hsql::DropStatement* statement) {
-    if (statement->type != DropStatement::kIndex) {
-        return new QueryResult("Only handles DROP INDEX");
-    }
-   
+QueryResult* SQLExec::drop_index(const hsql::DropStatement* statement) {
 
-    // FIXME
-    return new QueryResult("Drop index is being implemented");
+  //get table name and index name
+  Identifier table_name = statement->name;
+  Identifier index_name = statement->indexName;
+
+  //get index from database
+  DbIndex& index = SQLExec::indices->get_index(table_name, index_name);
+  ValueDict where;
+  where["table_name"] = Value(table_name);
+  where["index_name"] = Value(index_name);
+    
+  
+  Handles *index_handles = SQLExec::indices->select(&where);
+  
+  //remove index
+  index.drop();
+
+  for (auto const &handle : *index_handles)
+    {
+      SQLExec::indices->del(handle);
+    }
+  delete index_handles;
+  return new QueryResult("dropped index " + index_name);
 }
 
 
