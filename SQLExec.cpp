@@ -77,8 +77,8 @@ QueryResult::~QueryResult() {
  */
 
 QueryResult* SQLExec::execute(const SQLStatement* statement) {
-  if (SQLExec::tables == nullptr) {
-      SQLExec::tables = new Tables();
+    if (SQLExec::tables == nullptr) {
+        SQLExec::tables = new Tables();
     }
 
     try {
@@ -227,32 +227,13 @@ QueryResult* SQLExec::create_index(const CreateStatement* statement) {
     Identifier index_name = statement->indexName;
     Identifier index_type;
 
-    bool isUnique;
-
     ValueDict row;
-
-
-    try {
-        index_type = statement->indexType;
-    }
-    catch (exception & e) {
-        index_type = "BTREE";
-    }
-
-
-    if (index_type == "BTREE") {
-        isUnique = true;
-    }
-    else {
-        isUnique = false;
-    }
 
 
     // row setup
     row["table_name"] = table_name;
     row["index_name"] = index_name;
     row["index_type"] = index_type;
-    row["is_unique"] = isUnique;
     row["seq_in_index"] = 0;
 
     Handles index_handles;
@@ -278,7 +259,7 @@ QueryResult* SQLExec::create_index(const CreateStatement* statement) {
         throw;
     }
 
-    return new QueryResult("Created "+ index_name);
+    return new QueryResult("Created " + index_name);
 }
 
 /*
@@ -339,36 +320,36 @@ QueryResult* SQLExec::drop_table(const DropStatement* statement) {
  */
 QueryResult* SQLExec::drop_index(const hsql::DropStatement* statement) {
 
-  //get table name and index name
-  Identifier table_name = statement->name;
-  Identifier index_name = statement->indexName;
+    //get table name and index name
+    Identifier table_name = statement->name;
+    Identifier index_name = statement->indexName;
 
-  //get index from database
-  DbIndex& index = SQLExec::indices->get_index(table_name, index_name);
-  ValueDict where;
-  where["table_name"] = Value(table_name);
-  where["index_name"] = Value(index_name);
-    
-  
-  Handles *index_handles = SQLExec::indices->select(&where);
-  
-  //remove index
-  index.drop();
+    //get index from database
+    DbIndex& index = SQLExec::indices->get_index(table_name, index_name);
+    ValueDict where;
+    where["table_name"] = Value(table_name);
+    where["index_name"] = Value(index_name);
 
-  for (auto const &handle : *index_handles)
+
+    Handles* index_handles = SQLExec::indices->select(&where);
+
+    //remove index
+    index.drop();
+
+    for (auto const& handle : *index_handles)
     {
-      SQLExec::indices->del(handle);
+        SQLExec::indices->del(handle);
     }
-  delete index_handles;
-  return new QueryResult("dropped index " + index_name);
+    delete index_handles;
+    return new QueryResult("dropped index " + index_name);
 }
 
 
- /*
-  * Show function, shows tables, columns, indexs and such
-  * @param given statement for show table or columns
-  * @return QueryResult
-  */
+/*
+ * Show function, shows tables, columns, indexs and such
+ * @param given statement for show table or columns
+ * @return QueryResult
+ */
 QueryResult* SQLExec::show(const ShowStatement* statement) {
     switch (statement->type) {
     case ShowStatement::kTables:
@@ -416,13 +397,13 @@ QueryResult* SQLExec::show_tables(const ShowStatement* statement) {
   * @return QueryResult
   */
 QueryResult* SQLExec::show_columns(const ShowStatement* statement) {
-    DbRelation &cols = SQLExec::tables->get_table(Columns::TABLE_NAME);
+    DbRelation& cols = SQLExec::tables->get_table(Columns::TABLE_NAME);
 
-    ColumnNames *column_names = new ColumnNames;
+    ColumnNames* column_names = new ColumnNames;
     column_names->push_back("table_name");
     column_names->push_back("column_name");
     column_names->push_back("data_type");
-    ColumnAttributes *column_attributes = new ColumnAttributes;
+    ColumnAttributes* column_attributes = new ColumnAttributes;
     column_attributes->push_back(ColumnAttribute(ColumnAttribute::TEXT));
 
     ValueDict where;
@@ -469,4 +450,3 @@ QueryResult* SQLExec::show_index(const hsql::ShowStatement* statement) {
     return new QueryResult(column_names, nullptr, rows, "successfully returned " + to_string(rowNum) + " rows");
     //return new QueryResult("not implemented");
 }
-
