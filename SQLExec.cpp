@@ -1,13 +1,15 @@
 /**
- * @file SQLExec.cpp - implementation of SQLExec class
- * @author Kevin Lundeen
  *
  * @file SQLExec.cpp - implementation of SQLExec class
  * @author Kevin Lundeen
  * @see "Seattle University, CPSC5300, Spring 2020"
  *
  * Additional functionality related to CREATE TABLE
- * DROP TABLE, SHOW TABLE, SHOW COLUMNS
+ * DROP TABLE, SHOW TABLE, SHOW COLUMNS, CREATE INDEX,
+ * DROP INDEX and SHOW INDEX.
+ *
+ * Currently CREATE INDEX has a bug that causes a seg fault
+ * obviously this limited are ability to fully test MS4
  *
  * authored by Jietao Zhan and Thomas Ficca 5/8/2020
  * CPSC5300/4300 SQ20
@@ -223,39 +225,56 @@ QueryResult* SQLExec::create_index(const CreateStatement* statement) {
         return new QueryResult("Only handles CREATE INDEX");
     }
     Identifier table_name = statement->tableName;
-    ColumnNames column_names;
     Identifier index_name = statement->indexName;
-    Identifier index_type;
+    char *index_type = statement->indexType;
 
+    //check for duplicate columns
+    DbRelation& table = SQLExec::tables->get_table(table_name);
+    const ColumnNames& columns = table.get_column_names();
+    for (auto const& col : *statement->indexColumns){
+      if (find(columns.begin(), columns.end(), col) == columns.end())
+        throw SQLExecError("column " + string(col) + " doesn't exist");
+    }
+
+    //row to update _indices
     ValueDict row;
 
 
     // row setup
-    row["table_name"] = table_name;
-    row["index_name"] = index_name;
-    row["index_type"] = index_type;
-    row["seq_in_index"] = 0;
+    row["table_name"] = Value(table_name);
+    row["index_name"] = Value(index_name);
+    row["index_type"] = Value(index_type);
+    row["is_uniquex"] = Value(string(index_type) == "BTREE" ? true : false);
 
+    //handles for possible rollback in exceptions
+    int seq_in_index = 1;
+    Handle index_handle;
     Handles index_handles;
+    
     try {
-        for (auto const& col : *statement->indexColumns) {
-            row["seq_in_index"].n += 1;
-            row["column_name"] = string(col);
-            index_handles.push_back(SQLExec::indices->insert(&row));
+        //add new info index stuff to _indices
+      for (auto const& col : *statement->indexColumns)
+        {
+          row["seq_in_index"] = Value(seq_in_index++);
+          row["column_name"] = Value(col);
+          index_handle = SQLExec::indices->insert(&row);
+          index_handles.push_back(index_handle);
         }
 
-
+        //create index 
         DbIndex& index = SQLExec::indices->get_index(table_name, index_name);
         index.create();
     }
-    catch (exception & e) {
-        try {
-            for (unsigned int i = 0; i < index_handles.size(); i++) {
-                SQLExec::indices->del(index_handles.at(i));
-            }
-        }
-        catch (...) {
-        }
+    catch (exception &e)
+      {
+        try
+          {
+          for (auto const handle : index_handles)
+            SQLExec::indices->del(handle);
+          }
+        catch (...)
+          {
+          }
         throw;
     }
 
@@ -357,6 +376,7 @@ QueryResult* SQLExec::show(const ShowStatement* statement) {
     case ShowStatement::kColumns:
         return show_columns(statement);
     case ShowStatement::kIndex:
+        return show_index(statement);
     default:
         throw SQLExecError("unrecognized SHOW type");
     }
