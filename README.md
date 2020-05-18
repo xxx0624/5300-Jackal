@@ -10,6 +10,9 @@ Functions for CREATE TABLE, DROP TABLE, SHOW TABLE and SHOW COLUMNS have been ad
 #Milestone 4 
 Functions for CREATE INDEX, SHOW INDEX, and DROP INDEX have been added, Milestone 3 works perfectly now, unfortunately problems with CREATE INDEX kept us from fully testing Milestone 4
 
+#Handover video for Milestone4
+https://seattleu.instructuremedia.com/embed/f63a4267-6299-4ac7-be2c-9195aab7b987
+
 ## Tags
 - <code>Milestone1</code> is playing around with the AST returned by the HyLine parser and general setup of the command loop.
 - <code>Milestone2h</code> has the instructor-provided files for Milestone 2. (Note that <code>heap_storage.cpp</code> is just a stub.)
