@@ -1,4 +1,25 @@
 {
+   Cache leak
+   Memcheck:Leak
+   ...
+   fun:Tables::get_table
+   ...
+}
+{
+   Hyrise leak
+   Memcheck:Leak
+   ...
+   fun:hsql_parse
+   ...
+}
+{
+   Berkeley DB possible leak from env_open
+   Memcheck:Leak
+   ...
+   fun:Db::Db
+   ...
+}
+{
    Berkeley DB possible leak from env_open
    Memcheck:Leak
    ...
