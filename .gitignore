@@ -30,3 +30,6 @@
 *.exe
 *.out
 *.app
+
+# for sql5300
+sql5300
