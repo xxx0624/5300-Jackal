@@ -96,6 +96,8 @@ protected:
 
     static QueryResult *select(const hsql::SelectStatement *statement);
 
+    static bool table_exist(Identifier table_name);
+
     /**
      * Pull out column name and attributes from AST's column definition clause
      * @param col                AST column definition

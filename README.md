@@ -4,11 +4,18 @@ DB Relation Manager project for CPSC5300/4300 at Seattle U, Spring 2020;
 # Milestone 3/4 Authors
 Jietao Zhan and Thomas Ficca
 
-#Milestone 3
+## Milestone 3
 Functions for CREATE TABLE, DROP TABLE, SHOW TABLE and SHOW COLUMNS have been added, we need to resolve some compiler issues before we can complete testing.
 
-#Milestone 4 
+## Milestone 4 
 Functions for CREATE INDEX, SHOW INDEX, and DROP INDEX have been added, Milestone 3 works perfectly now, unfortunately problems with CREATE INDEX kept us from fully testing Milestone 4
+
+# Milestone5
+```
+create table goober (x integer, y integer, z integer)
+insert into goober (z,y,x) VALUES (9,8,7)
+select * from goober
+```
 
 #Handover video for Milestone4
 https://seattleu.instructuremedia.com/embed/f63a4267-6299-4ac7-be2c-9195aab7b987

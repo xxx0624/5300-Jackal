@@ -4,6 +4,7 @@
  * @see "Seattle University, CPSC5300, Spring 2020"
  */
 #include "SQLExec.h"
+#include "ParseTreeToString.h"
 
 using namespace std;
 using namespace hsql;
@@ -89,7 +90,31 @@ QueryResult *SQLExec::execute(const SQLStatement *statement) {
 }
 
 QueryResult *SQLExec::insert(const InsertStatement *statement) {
-    return new QueryResult("INSERT statement not yet implemented");  // FIXME
+    Identifier table_name = statement->tableName;
+    if(!table_exist(table_name)){
+        throw SQLExecError(table_name + " not exist");
+    }
+
+    ValueDict row;
+    ColumnNames cols;
+    // todo if columns are not specified
+    for(auto const &column: *statement->columns){
+        cols.push_back(column);
+    }
+    int index = 0;
+    for(Expr *expr: *statement->values){
+        if(expr->type == kExprLiteralString){
+            row[cols[index]] = Value(expr->name);
+        } else if(expr->type == kExprLiteralInt){
+            row[cols[index]] = Value(expr->ival);
+        } else {
+            // for now, only support string & int
+        }
+        index ++;
+    }
+    DbRelation &table = tables->get_table(table_name);
+    table.insert(&row);
+    return new QueryResult("insert one row successfully");
 }
 
 QueryResult *SQLExec::del(const DeleteStatement *statement) {
@@ -97,7 +122,42 @@ QueryResult *SQLExec::del(const DeleteStatement *statement) {
 }
 
 QueryResult *SQLExec::select(const SelectStatement *statement) {
-    return new QueryResult("SELECT statement not yet implemented");  // FIXME
+    Identifier table_name = statement->fromTable->name;
+    // get all columns from the table
+    if(!table_exist(table_name)){
+        throw SQLExecError(table_name + " not exist");
+    }
+
+    DbRelation &table = tables->get_table(table_name);
+    const ColumnNames &all_cols = table.get_column_names();
+    ColumnAttributes all_col_attrs = table.get_column_attributes();
+    ColumnNames *cols = new ColumnNames;
+    ColumnAttributes *attrs = new ColumnAttributes;
+    // fetch all specified cols
+    for(Expr *expr: *statement->selectList){
+        if(expr->type == kExprStar){
+            for(Identifier name : all_cols){
+                cols->push_back(name);
+            }
+            break;
+        } else {
+            cols->push_back(string(expr->name));
+        }
+    }
+    // fetch all specified attrs for cols
+    for(Identifier name : *cols){
+        for(int i = 0; i < (int)all_cols.size(); i ++){
+            if(name == all_cols[i]){
+                attrs->push_back(all_col_attrs[i]);
+                break;
+            }
+        }
+    }
+    // todo where clause
+    Handles *handles = table.select();
+    ValueDicts *rows = table.project(handles, cols);
+    delete handles;
+    return new QueryResult(cols, attrs, rows, "successfully returned " + to_string(rows->size()) + " rows");
 }
 
 void
@@ -389,4 +449,22 @@ QueryResult *SQLExec::show_columns(const ShowStatement *statement) {
     }
     delete handles;
     return new QueryResult(column_names, column_attributes, rows, "successfully returned " + to_string(n) + " rows");
+}
+
+
+/**
+ * check if the table exists
+ * @param table_name  name of the table you want to check
+ */
+bool SQLExec::table_exist(Identifier table_name){
+    QueryResult *query_result = show_tables();
+    bool res = false;
+    for(auto const &row : *(query_result->get_rows())){
+        if(row->at("table_name") == Value(table_name)){
+            res = true;
+            break;
+        }
+    }
+    delete query_result;
+    return res;
 }
