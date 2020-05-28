@@ -114,6 +114,7 @@ QueryResult *SQLExec::insert(const InsertStatement *statement) {
     }
     DbRelation &table = tables->get_table(table_name);
     table.insert(&row);
+    // insert data into indices
     return new QueryResult("insert one row successfully");
 }
 
