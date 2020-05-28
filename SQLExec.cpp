@@ -122,9 +122,47 @@ QueryResult *SQLExec::del(const DeleteStatement *statement) {
     return new QueryResult("DELETE statement not yet implemented");  // FIXME
 }
 
+ValueDicts *SQLExec::fetch_where_clause(const Expr *expr){
+    vector<Value>* res = new vector<Value>();
+    expression(expr, res);
+    for(Value v : *res){
+        if(v.data_type == ColumnAttribute::TEXT){
+            cout << v.s << endl;
+        } else {
+            cout << v.n << endl;
+        } 
+    }
+    return NULL;
+}
+
+void SQLExec::operator_expression(const Expr *expr, vector<Value> *res){
+    expression(expr->expr, res);
+    if(expr->opType == Expr::SIMPLE_OP || expr->opType == Expr::AND){
+        // for now, only support AND & EQUAL op
+    } else {
+        throw SQLExecError("not support this op");
+    }
+    if(expr->expr2 != NULL){
+        expression(expr->expr2, res);
+    }
+}
+
+void SQLExec::expression(const Expr *expr, vector<Value> *res){
+    if(expr->type == kExprColumnRef || expr->type == kExprLiteralString){
+        res->push_back(Value(expr->name));
+    } else if(expr->type == kExprLiteralInt){
+        res->push_back(Value(expr->ival));
+    } else if(expr->type == kExprOperator){
+        operator_expression(expr, res);
+    }
+    else {
+        throw SQLExecError("not support this op");
+    }
+}
+
+
 QueryResult *SQLExec::select(const SelectStatement *statement) {
     Identifier table_name = statement->fromTable->name;
-    // get all columns from the table
     if(!table_exist(table_name)){
         throw SQLExecError(table_name + " not exist");
     }
@@ -154,6 +192,7 @@ QueryResult *SQLExec::select(const SelectStatement *statement) {
             }
         }
     }
+    fetch_where_clause(statement->whereClause);
     // todo where clause
     Handles *handles = table.select();
     ValueDicts *rows = table.project(handles, cols);

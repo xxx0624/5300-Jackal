@@ -7,8 +7,10 @@
 
 #include <exception>
 #include <string>
+#include <vector>
 #include "SQLParser.h"
 #include "schema_tables.h"
+#include "ParseTreeToString.h"
 
 /**
  * @class SQLExecError - exception for SQLExec methods
@@ -97,6 +99,11 @@ protected:
     static QueryResult *select(const hsql::SelectStatement *statement);
 
     static bool table_exist(Identifier table_name);
+
+    static ValueDicts *fetch_where_clause(const hsql::Expr *expr);
+
+    static void operator_expression(const hsql::Expr *expr, std::vector<Value> *res);
+    static void expression(const hsql::Expr *expr, std::vector<Value> *res);
 
     /**
      * Pull out column name and attributes from AST's column definition clause
