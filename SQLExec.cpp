@@ -5,6 +5,7 @@
  */
 #include "SQLExec.h"
 #include "ParseTreeToString.h"
+#include "EvalPlan.h"
 
 using namespace std;
 using namespace hsql;
@@ -127,7 +128,7 @@ ValueDict *SQLExec::fetch_where_clause(const Expr *expr){
     if(expr == NULL){
         return val;
     }
-    
+
     vector<Value>* res = new vector<Value>();
     expression(expr, res);
     for(int i = 0; i < (int)res->size(); i += 2){
@@ -194,33 +195,16 @@ QueryResult *SQLExec::select(const SelectStatement *statement) {
             }
         }
     }
-    Handles *handles = table.select();
-    ValueDicts *rows = table.project(handles, cols);
-    ValueDicts *buffer = new ValueDicts();
-    delete handles;
-    ValueDict *where = fetch_where_clause(statement->whereClause);
-    vector<bool> marked(rows->size(), false);
-    for(size_t i = 0; i < rows->size(); i ++){
-        ValueDict *row = (*rows)[i];
-        bool qualified = true;
-        for(ValueDict::iterator it_row = row->begin(); it_row != row->end(); it_row ++){
-            if(where->find(it_row->first) != where->end() && (*where)[it_row->first] != it_row->second){
-                qualified = false;
-                break;
-            }
-        }
-        if(!qualified){
-            marked[i] = true;
-        }
+    EvalPlan *plan = new EvalPlan(table);
+    if(statement->whereClause != NULL){
+        ValueDict *where = fetch_where_clause(statement->whereClause);
+        plan = new EvalPlan(where, plan);
     }
-    for(size_t i = 0; i < rows->size(); i ++){
-        if(!marked[i]){
-            buffer->push_back((*rows)[i]);
-        }
-    }
-    delete rows;
-    delete where;
-    return new QueryResult(cols, attrs, buffer, "successfully returned " + to_string(buffer->size()) + " rows");
+    plan = new EvalPlan(cols, plan);
+    plan = plan->optimize();
+    ValueDicts *rows = plan->evaluate();
+    delete plan;
+    return new QueryResult(cols, attrs, rows, "successfully returned " + to_string(rows->size()) + " rows");
 }
 
 void
