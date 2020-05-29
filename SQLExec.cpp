@@ -122,17 +122,19 @@ QueryResult *SQLExec::del(const DeleteStatement *statement) {
     return new QueryResult("DELETE statement not yet implemented");  // FIXME
 }
 
-ValueDicts *SQLExec::fetch_where_clause(const Expr *expr){
+ValueDict *SQLExec::fetch_where_clause(const Expr *expr){
+    ValueDict *val = new ValueDict();
+    if(expr == NULL){
+        return val;
+    }
+    
     vector<Value>* res = new vector<Value>();
     expression(expr, res);
-    for(Value v : *res){
-        if(v.data_type == ColumnAttribute::TEXT){
-            cout << v.s << endl;
-        } else {
-            cout << v.n << endl;
-        } 
+    for(int i = 0; i < (int)res->size(); i += 2){
+        (*val)[res->at(i).s] = res->at(i + 1);
     }
-    return NULL;
+    delete res;
+    return val;
 }
 
 void SQLExec::operator_expression(const Expr *expr, vector<Value> *res){
@@ -192,12 +194,33 @@ QueryResult *SQLExec::select(const SelectStatement *statement) {
             }
         }
     }
-    fetch_where_clause(statement->whereClause);
-    // todo where clause
     Handles *handles = table.select();
     ValueDicts *rows = table.project(handles, cols);
+    ValueDicts *buffer = new ValueDicts();
     delete handles;
-    return new QueryResult(cols, attrs, rows, "successfully returned " + to_string(rows->size()) + " rows");
+    ValueDict *where = fetch_where_clause(statement->whereClause);
+    vector<bool> marked(rows->size(), false);
+    for(size_t i = 0; i < rows->size(); i ++){
+        ValueDict *row = (*rows)[i];
+        bool qualified = true;
+        for(ValueDict::iterator it_row = row->begin(); it_row != row->end(); it_row ++){
+            if(where->find(it_row->first) != where->end() && (*where)[it_row->first] != it_row->second){
+                qualified = false;
+                break;
+            }
+        }
+        if(!qualified){
+            marked[i] = true;
+        }
+    }
+    for(size_t i = 0; i < rows->size(); i ++){
+        if(!marked[i]){
+            buffer->push_back((*rows)[i]);
+        }
+    }
+    delete rows;
+    delete where;
+    return new QueryResult(cols, attrs, buffer, "successfully returned " + to_string(buffer->size()) + " rows");
 }
 
 void

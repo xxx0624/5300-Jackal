@@ -100,7 +100,7 @@ protected:
 
     static bool table_exist(Identifier table_name);
 
-    static ValueDicts *fetch_where_clause(const hsql::Expr *expr);
+    static ValueDict *fetch_where_clause(const hsql::Expr *expr);
 
     static void operator_expression(const hsql::Expr *expr, std::vector<Value> *res);
     static void expression(const hsql::Expr *expr, std::vector<Value> *res);
