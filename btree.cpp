@@ -76,8 +76,8 @@ Handles *BTreeIndex::lookup(ValueDict *key_dict) const {
     return hs;
 }
 
-Handles *BTreeIndex::_lookup(BTreeNode *node, uint depth, KeyValue *key) const {
-    if(depth == 1){
+Handles *BTreeIndex::_lookup(BTreeNode *node, uint height, const KeyValue *key) const {
+    if(height == 1){
         Handles *handles = new Handles();
         BTreeLeaf *leaf = (BTreeLeaf*)node;
         if(leaf->contains(key))
@@ -85,7 +85,7 @@ Handles *BTreeIndex::_lookup(BTreeNode *node, uint depth, KeyValue *key) const {
         return handles;
     } else{
         BTreeInterior* interior_node = (BTreeInterior*)node;
-        return this->_lookup(interior_node->find(key, depth), depth - 1, key);
+        return this->_lookup(interior_node->find(key, height), height - 1, key);
     }
 }
 

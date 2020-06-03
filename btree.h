@@ -24,8 +24,6 @@ public:
 
     virtual Handles *lookup(ValueDict *key) const;
 
-    virtual Handles *_lookup(BTreeNode *node, uint depth, KeyValue *key) const;
-
     virtual Handles *range(ValueDict *min_key, ValueDict *max_key) const;
 
     virtual void insert(Handle handle);
