@@ -70,13 +70,28 @@ void BTreeIndex::close() {
 // Find all the rows whose columns are equal to key. Assumes key is a dictionary whose keys are the column
 // names in the index. Returns a list of row handles.
 Handles *BTreeIndex::lookup(ValueDict *key_dict) const {
-    // FIXME
-    return nullptr;
+    KeyValue *tkey = this->tkey(key_dict);
+    Handles* hs = _lookup(root, stat->get_height(), tkey);
+    std::cout << "look up size:" << hs->size() << std::endl;
+    return hs;
 }
+
+Handles *BTreeIndex::_lookup(BTreeNode *node, uint depth, KeyValue *key) const {
+    if(depth == 1){
+        Handles *handles = new Handles();
+        BTreeLeaf *leaf = (BTreeLeaf*)node;
+        if(leaf->contains(key))
+            handles->push_back(leaf->find_eq(key));
+        return handles;
+    } else{
+        BTreeInterior* interior_node = (BTreeInterior*)node;
+        return this->_lookup(interior_node->find(key, depth), depth - 1, key);
+    }
+}
+
 
 Handles *BTreeIndex::range(ValueDict *min_key, ValueDict *max_key) const {
     throw DbRelationError("Don't know how to do a range query on Btree index yet");
-    // FIXME
 }
 
 // Insert a row with the given handle. Row must exist in relation already.
@@ -117,7 +132,6 @@ Insertion BTreeIndex::_insert(BTreeNode *node, uint height, const KeyValue *key,
 
 void BTreeIndex::del(Handle handle) {
     throw DbRelationError("Don't know how to delete from a BTree index yet");
-    // FIXME
 }
 
 KeyValue *BTreeIndex::tkey(const ValueDict *key) const {
@@ -166,8 +180,6 @@ bool test_btree() {
     column_names.push_back("a");
     BTreeIndex index(table, "fooindex", column_names, true);
     index.create();
-    return true;  // FIXME
-
 
     ValueDict lookup;
     lookup["a"] = 12;
@@ -176,6 +188,8 @@ bool test_btree() {
     if (*result != row1) {
         std::cout << "first lookup failed" << std::endl;
         return false;
+    } else {
+        std::cout << "first lookup ok" << std::endl;
     }
     delete handles;
     delete result;
@@ -185,6 +199,8 @@ bool test_btree() {
     if (*result != row2) {
         std::cout << "second lookup failed" << std::endl;
         return false;
+    } else {
+        std::cout << "second lookup ok" << std::endl;
     }
     delete handles;
     delete result;
@@ -193,23 +209,46 @@ bool test_btree() {
     if (handles->size() != 0) {
         std::cout << "third lookup failed" << std::endl;
         return false;
+    } else {
+        std::cout << "third lookup ok" << std::endl;
     }
     delete handles;
 
-    for (uint j = 0; j < 10; j++)
-        for (int i = 0; i < 1000; i++) {
-            lookup["a"] = i + 100;
-            handles = index.lookup(&lookup);
-            result = table.project(handles->back());
-            row1["a"] = i + 100;
-            row1["b"] = -i;
-            if (*result != row1) {
-                std::cout << "lookup failed " << i << std::endl;
-                return false;
-            }
-            delete handles;
-            delete result;
+    // for (uint j = 0; j < 10; j++){
+    //     for (int i = 0; i < 1000; i++) {
+    //         lookup["a"] = i + 100;
+    //         handles = index.lookup(&lookup);
+    //         result = table.project(handles->back());
+    //         row1["a"] = Value(i + 100);
+    //         row1["b"] = Value(-i);
+    //         if (*result != row1) {
+    //             std::cout << "lookup failed " << i << std::endl;
+    //             return false;
+    //         } else {
+    //             std::cout << "lookup ok (" << j << "," << i << ")" << std::endl;
+    //         }
+    //         delete handles;
+    //         delete result;
+    //     }
+    // }
+
+    for (int i = 0; i < 100 * 1000; i++) {
+        lookup["a"] = i + 100;
+        handles = index.lookup(&lookup);
+        result = table.project(handles->back());
+        row1["a"] = i + 100;
+        row1["b"] = -i;
+        if (*result != row1) {
+            std::cout << "lookup failed " << i << std::endl;
+            return false;
+        } else {
+            std::cout << "lookup ok " << i << std::endl;
         }
+        delete handles;
+        delete result;
+    }
+
+    return true;
 
     // test delete
     ValueDict row;

@@ -385,6 +385,11 @@ Handle BTreeLeaf::find_eq(const KeyValue *key) const {
     return this->key_map.at(*key);
 }
 
+bool BTreeLeaf::contains(const KeyValue *key) {
+    std::map<KeyValue, Handle>::iterator it = this->key_map.find(*key);
+    return it != this->key_map.end();
+}
+
 // Save the key_map and next_leaf data in the correct order
 void BTreeLeaf::save() {
     Dbt *dbt;

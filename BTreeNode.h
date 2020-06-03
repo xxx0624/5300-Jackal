@@ -104,6 +104,9 @@ public:
     virtual ~BTreeLeaf();
 
     Handle find_eq(const KeyValue *key) const;  // throws if not found
+
+    virtual bool contains(const KeyValue *key);
+
     Insertion insert(const KeyValue *key, Handle handle);
 
     virtual void save();
