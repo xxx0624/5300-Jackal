@@ -72,7 +72,6 @@ void BTreeIndex::close() {
 Handles *BTreeIndex::lookup(ValueDict *key_dict) const {
     KeyValue *tkey = this->tkey(key_dict);
     Handles* hs = _lookup(root, stat->get_height(), tkey);
-    std::cout << "look up size:" << hs->size() << std::endl;
     return hs;
 }
 
@@ -170,7 +169,7 @@ bool test_btree() {
     row2["b"] = Value(101);
     table.insert(&row1);
     table.insert(&row2);
-    for (int i = 0; i < 100 * 1000; i++) {
+    for (int i = 0; i < 50 * 1000; i++) {
         ValueDict row;
         row["a"] = Value(i + 100);
         row["b"] = Value(-i);
@@ -214,40 +213,26 @@ bool test_btree() {
     }
     delete handles;
 
-    // for (uint j = 0; j < 10; j++){
-    //     for (int i = 0; i < 1000; i++) {
-    //         lookup["a"] = i + 100;
-    //         handles = index.lookup(&lookup);
-    //         result = table.project(handles->back());
-    //         row1["a"] = Value(i + 100);
-    //         row1["b"] = Value(-i);
-    //         if (*result != row1) {
-    //             std::cout << "lookup failed " << i << std::endl;
-    //             return false;
-    //         } else {
-    //             std::cout << "lookup ok (" << j << "," << i << ")" << std::endl;
-    //         }
-    //         delete handles;
-    //         delete result;
-    //     }
-    // }
-
-    for (int i = 0; i < 100 * 1000; i++) {
-        lookup["a"] = i + 100;
-        handles = index.lookup(&lookup);
-        result = table.project(handles->back());
-        row1["a"] = i + 100;
-        row1["b"] = -i;
-        if (*result != row1) {
-            std::cout << "lookup failed " << i << std::endl;
-            return false;
-        } else {
-            std::cout << "lookup ok " << i << std::endl;
+    for (uint j = 0; j < 50; j++){
+        for (int i = 0; i < 1000; i++) {
+            lookup["a"] = i + 100;
+            handles = index.lookup(&lookup);
+            result = table.project(handles->back());
+            row1["a"] = Value(i + 100);
+            row1["b"] = Value(-i);
+            if (*result != row1) {
+                std::cout << "lookup failed " << i << std::endl;
+                return false;
+            } else {
+                std::cout << "lookup ok (" << j << "," << i << ")" << std::endl;
+            }
+            delete handles;
+            delete result;
         }
-        delete handles;
-        delete result;
     }
 
+    index.drop();
+    table.drop();
     return true;
 
     // test delete
@@ -314,7 +299,5 @@ bool test_btree() {
         std::cout << "delete everything failed: " << count_i << std::endl;
         return false;
     }
-    index.drop();
-    table.drop();
     return true;
 }
