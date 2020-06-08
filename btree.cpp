@@ -122,7 +122,9 @@ Insertion BTreeIndex::_insert(BTreeNode *node, uint height, const KeyValue *key,
         return leaf->insert(key, handle);
     } else {
         auto *interior = dynamic_cast<BTreeInterior *>(node);
-        Insertion insertion = _insert(interior->find(key, height), height - 1, key, handle);
+        auto *child = interior->find(key, height);
+        Insertion insertion = _insert(child, height - 1, key, handle);
+        delete child;
         if (!BTreeNode::insertion_is_none(insertion))
             insertion = interior->insert(&insertion.second, insertion.first);
         return insertion;
@@ -183,6 +185,10 @@ bool test_btree() {
     ValueDict lookup;
     lookup["a"] = 12;
     Handles *handles = index.lookup(&lookup);
+    if (handles->size() == 0) {
+        std::cout << "first lookup failed" << std::endl;
+        return false;
+    }
     ValueDict *result = table.project(handles->back());
     if (*result != row1) {
         std::cout << "first lookup failed" << std::endl;
@@ -194,6 +200,10 @@ bool test_btree() {
     delete result;
     lookup["a"] = 88;
     handles = index.lookup(&lookup);
+    if (handles->size() == 0) {
+        std::cout << "second lookup failed" << std::endl;
+        return false;
+    }
     result = table.project(handles->back());
     if (*result != row2) {
         std::cout << "second lookup failed" << std::endl;
