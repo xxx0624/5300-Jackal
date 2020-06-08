@@ -7,7 +7,7 @@ Jietao Zhan and Thomas Ficca
 ## Milestone 3
 Functions for CREATE TABLE, DROP TABLE, SHOW TABLE and SHOW COLUMNS have been added, we need to resolve some compiler issues before we can complete testing.
 
-## Milestone 4 
+# Milestone 4 
 Functions for CREATE INDEX, SHOW INDEX, and DROP INDEX have been added, Milestone 3 works perfectly now, unfortunately problems with CREATE INDEX kept us from fully testing Milestone 4
 
 # Milestone5
@@ -16,6 +16,10 @@ create table goober (x integer, y integer, z integer)
 insert into goober (z,y,x) VALUES (9,8,7)
 select * from goober
 ```
+
+# Milestone6
+Implementation of B+ Tree Index -- just insert and lookup.
+
 
 #Handover video for Milestone4
 https://seattleu.instructuremedia.com/embed/f63a4267-6299-4ac7-be2c-9195aab7b987
@@ -26,6 +30,7 @@ https://seattleu.instructuremedia.com/embed/f63a4267-6299-4ac7-be2c-9195aab7b987
 - <code>Milestone2</code> is the instructor's attempt to complete the Milestone 2 assignment.
 - <code>Milestone3_prep</code> has the instructor-provided files for Milestone 3.
 - <code>Milestone4_prep</code> has the instructor-provided files for Milestone 4.
+- <code>Milestone6</code> implemented the b-tree index.
 
 The students' work is in 
 <code>SQLExec.cpp</code> labeled with <code>FIXME</code>.
