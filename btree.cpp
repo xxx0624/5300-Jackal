@@ -27,14 +27,19 @@ BTreeIndex::~BTreeIndex() {
 
 // Create the index.
 void BTreeIndex::create() {
-    file.create();
-    stat = new BTreeStat(file, STAT, STAT + 1, key_profile);
-    root = new BTreeLeaf(file, stat->get_root_id(), key_profile, true);
-    closed = false;
-    Handles *table_rows = relation.select();
-    for (auto const &row: *table_rows)
-        insert(row);
-    delete table_rows;
+    try{
+        file.create();
+        stat = new BTreeStat(file, STAT, STAT + 1, key_profile);
+        root = new BTreeLeaf(file, stat->get_root_id(), key_profile, true);
+        closed = false;
+        Handles *table_rows = relation.select();
+        for (auto const &row: *table_rows)
+            insert(row);
+        delete table_rows;
+    } catch (...) {
+        file.drop();
+        throw;
+    }
 }
 
 // Drop the index.
